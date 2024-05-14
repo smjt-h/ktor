@@ -226,6 +226,26 @@ fun KotlinMultiplatformExtension.configureSourceSets() {
         }
 }
 
+// This adds HARNESS_JAVA_AGENT to the testing command if it's
+// provided through the command line.
+// Local builds will still remain same as it only adds if the
+// parameter is provided.
+tasks.withType(Test) {
+  if(System.getProperty("HARNESS_JAVA_AGENT")) {
+    jvmArgs += [System.getProperty("HARNESS_JAVA_AGENT")]
+  }
+}
+
+// This makes sure that any test tasks for subprojects don't
+// fail in case the test filter does not match.
+gradle.projectsEvaluated {
+        tasks.withType(Test) {
+            filter {
+                setFailOnNoMatchingTests(false)
+            }
+        }
+}
+
 // Drop this configuration when the Node.JS version in KGP will support wasm gc milestone 4
 // check it here:
 // https://github.com/JetBrains/kotlin/blob/master/libraries/tools/kotlin-gradle-plugin/src/common/kotlin/org/jetbrains/kotlin/gradle/targets/js/nodejs/NodeJsRootExtension.kt
